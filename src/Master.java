@@ -16,6 +16,23 @@ public class Master {
 	{
 	}
 	
+	public void scanNetwork(int N, String fileName) throws IOException
+	{
+		/*
+		 * Scan port22 on N machines randomly and return IPs of the open ones, which are saved in fileName
+		 */
+		
+		String[] command = {"/bin/sh", "-c", "nmap -p22 -oG nmap.res -iR "+ N };
+		Runtime.getRuntime().exec(command);
+		
+		command[2] = "grep 'open' nmap.res | grep -o " +
+				"'[0-9]\\{1,3\\}\\.[0-9]\\{1,3\\}\\.[0-9]\\{1,3\\}\\.[0-9]\\{1,3\\}' > "+ fileName ;
+		Runtime.getRuntime().exec(command);
+		
+		importWorkerIds(fileName);
+		
+	}
+	
 	public void importWorkerIds(String fileName)
 	{
 		/*
@@ -52,9 +69,11 @@ public class Master {
 		String s;
 		String status = "-1";
 		
+		String[] command = {"/bin/sh", "-c", " "};
+		
 		for(String worker : workerIds)
 		{
-			String[] command = {"/bin/sh", "-c", "nc -z "+worker+" 22 > /dev/null | echo $?"};
+			command[2] = "nc -z "+worker+" 22 | echo $?";
 			p = Runtime.getRuntime().exec(command);
 			
 			
