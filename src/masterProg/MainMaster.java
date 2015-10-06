@@ -13,6 +13,8 @@ public class MainMaster {
 		
 		Master master = new Master();
 		
+		master.scanNetwork(500, "~/masterScan.res");
+		
 		master.importWorkerIds(args[0]);
 		
 		master.testWorkers();
