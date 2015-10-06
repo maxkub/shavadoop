@@ -7,6 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
 import java.util.Scanner;
 
 
@@ -15,6 +17,10 @@ import java.util.Scanner;
 public class Master {
 	
 	private ArrayList<String> workerIds = new ArrayList<String>();
+	
+	private HashMap<String,String> UMxMachines = new HashMap<String,String>();
+	private HashMap<String,String> keyUMx = new HashMap<String,String>();
+	private HashMap<String,String> RMxMachines = new HashMap<String,String>();
 	
 	
 	public Master()
@@ -61,11 +67,6 @@ public class Master {
 	    {
 	        e.printStackTrace();
 	    }
-	    
-	    //for(String el : workerIds)
-	    //{
-	    //	System.out.println(el);
-	    //}
 	}
 	
 	
@@ -149,7 +150,10 @@ public class Master {
 		 * Alternative startWorker
 		 */
 		
-		ProcessBuilder pb = new ProcessBuilder("ssh", workerIds.get(0), "hostname && java -jar "+jarName).inheritIO();
+		Random generator = new Random();
+		int i = generator.nextInt(workerIds.size() );
+		
+		ProcessBuilder pb = new ProcessBuilder("ssh", workerIds.get(i), "hostname && java -jar "+jarName +" "+ i).inheritIO();
 		
 		Process p = pb.start();
 		
