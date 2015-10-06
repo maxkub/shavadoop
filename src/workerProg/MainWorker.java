@@ -1,6 +1,6 @@
 package workerProg;
 
-public class Main {
+public class MainWorker {
 	
 	public static void main(String[] args)
 	{

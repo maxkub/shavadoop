@@ -5,11 +5,11 @@ import java.io.IOException;
 
 
 
-public class Main {
+public class MainMaster {
 	
 	public static void main(String[] args) throws IOException, InterruptedException
 	{
-		System.out.println("Hello");
+		System.out.println("Hello!!");
 		
 		Master master = new Master();
 		
