@@ -27,10 +27,10 @@ public class Master {
 		 * Scan port22 on N machines randomly and return IPs of the open ones, which are saved in fileName
 		 */
 		
-		String[] command = {"/bin/sh", "-c", "nmap -p22 -oG nmap.res -iR "+ N };
+		String[] command = {"/bin/sh", "-c", "nmap -p22 -Pn -oG nmap.res -iR "+ N };
 		Runtime.getRuntime().exec(command);
 		
-		command[2] = "grep 'open' nmap.res | grep -o " +
+		command[2] = "grep 'open' nmap.res | grep 'c[0-9]\\{3\\}-[0-9]\\{2\\}' | grep -o " +
 				"'[0-9]\\{1,3\\}\\.[0-9]\\{1,3\\}\\.[0-9]\\{1,3\\}\\.[0-9]\\{1,3\\}' > "+ fileName ;
 		Runtime.getRuntime().exec(command);
 		
@@ -61,6 +61,11 @@ public class Master {
 	    {
 	        e.printStackTrace();
 	    }
+	    
+	    //for(String el : workerIds)
+	    //{
+	    //	System.out.println(el);
+	    //}
 	}
 	
 	
@@ -70,30 +75,31 @@ public class Master {
 		 * Check each worker's disponibility  
 		 */
 		
-		Process p;
 		String s;
 		String status = "-1";
 		
-		String[] command = {"/bin/sh", "-c", " "};
 		
+		ArrayList<Integer> unreach = new ArrayList<Integer>();
+		
+		int i = 0;
 		for(String worker : workerIds)
-		{
-			command[2] = "nc -z "+worker+" 22 | echo $?";
-			p = Runtime.getRuntime().exec(command);
+		{	
+			String[] command = {"/bin/sh", "-c", "ssh "+worker+" 'echo 2>&1' && echo OK || echo NOK"};
 			
-			
+			Process p = Runtime.getRuntime().exec(command);
+				
 			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			
 	        while ((s = br.readLine()) != null)
 	        	
-	        	if(s.equals("0"))
+	        	if(s.equals("OK"))
 	        	{
 	        		status = "available";
 	        	}
 	        	else
 	        	{
-	        		status = "out";
-	        		workerIds.remove(worker);
+	        		status = "NOK";
+	        		unreach.add(i);
 	        	}
 	        
 	        System.out.println(worker+" status: " + status);
@@ -102,12 +108,51 @@ public class Master {
 	        System.out.println ("exit: " + p.exitValue());
 	        p.destroy();
 	        
+	        i++;
 		}
 		
+		for(int j : unreach)
+		{
+			try
+			{
+				workerIds.remove(j);
+			}catch (IndexOutOfBoundsException e)
+			{
+				System.out.println(e.getMessage());
+			}	
+		}
+	}
+	
+	
+	public void startWorker(String jarName) throws IOException, InterruptedException
+	{
+		Process p;
+		String s;
+		
+		String[] command = {"/bin/sh", "-c", "ssh "+workerIds.get(0)+" 'hostname && java -jar "+jarName+"'"};
+		p = Runtime.getRuntime().exec(command);
 		
 		
+		BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
 		
+        while ((s = br.readLine()) != null)
+        	System.out.println(s);
+        
+        p.waitFor();
+        System.out.println ("exit: " + p.exitValue());
+        p.destroy();
 		
+	}
+	
+	public void startWorker2(String jarName) throws IOException
+	{
+		/*
+		 * Alternative startWorker
+		 */
+		
+		ProcessBuilder pb = new ProcessBuilder("ssh", workerIds.get(0), "hostname && java -jar "+jarName).inheritIO();
+		
+		pb.start();
 	}
 
 }
