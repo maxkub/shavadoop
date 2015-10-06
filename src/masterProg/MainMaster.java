@@ -9,7 +9,7 @@ public class MainMaster {
 	
 	public static void main(String[] args) throws IOException, InterruptedException
 	{
-		System.out.println("Hello!!");
+		System.out.println("MasterProg says : Hello!!");
 		
 		Master master = new Master();
 		
