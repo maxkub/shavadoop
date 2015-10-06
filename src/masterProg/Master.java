@@ -139,12 +139,11 @@ public class Master {
         	System.out.println(s);
         
         p.waitFor();
-        System.out.println ("exit: " + p.exitValue());
         p.destroy();
 		
 	}
 	
-	public void startWorker2(String jarName) throws IOException
+	public void startWorker2(String jarName) throws IOException, InterruptedException
 	{
 		/*
 		 * Alternative startWorker
@@ -152,7 +151,10 @@ public class Master {
 		
 		ProcessBuilder pb = new ProcessBuilder("ssh", workerIds.get(0), "hostname && java -jar "+jarName).inheritIO();
 		
-		pb.start();
+		Process p = pb.start();
+		
+		p.waitFor();
+		p.destroy();
 	}
 
 }

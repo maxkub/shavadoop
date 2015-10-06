@@ -26,6 +26,8 @@ public class MainMaster {
 		
 		master.startWorker2(args[1]);
 		
+		System.out.println("End worker");
+		
 	}
 
 }
