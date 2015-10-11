@@ -53,5 +53,18 @@ public class Worker {
 		}
 		
 	}
-
+	
+	public void printUM()
+	{
+		ProcessBuilder pb = new ProcessBuilder("hostname").inheritIO();
+		
+		try {
+			Process p = pb.start();
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println(UM);
+	}
 }

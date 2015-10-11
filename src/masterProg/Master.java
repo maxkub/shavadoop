@@ -226,7 +226,7 @@ public class Master {
 	        	StringTokenizer itr = new StringTokenizer(s.toString());
 				while(itr.hasMoreTokens())
 				{	
-					sliceNum = Integer.parseInt(itr.nextToken());
+					sliceNum = Integer.parseInt(itr.nextToken())-1;
 					itr.nextToken();			
 				}
 	        }
