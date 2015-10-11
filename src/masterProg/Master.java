@@ -241,7 +241,7 @@ public class Master {
 	}
 	
 	
-	public void startNWorkers(String filePath, String jarName) throws IOException, InterruptedException
+	public void startNWorkers(String jarName, String filePath) throws IOException, InterruptedException
 	{
 		/*
 		 * Start N workers on the N first machines from the list of available ones

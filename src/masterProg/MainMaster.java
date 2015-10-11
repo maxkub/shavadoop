@@ -29,7 +29,7 @@ public class MainMaster {
 		
 		//master.countLines(args[2]); //unnecessary : is done in startNWorkers 
 		
-		master.startNWorkers(args[2], args[1]);
+		master.startNWorkers(args[1], args[2]);
 		
 		System.out.println("End Master");
 		
