@@ -53,7 +53,7 @@ public class Master {
 	public void importWorkerIds(String fileName)
 	{
 		/*
-		 * read file containing the name of workers
+		 * read file containing the name of workers (IP or hostname)
 		 */
 				
         File file = new File(fileName);
