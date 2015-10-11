@@ -206,31 +206,19 @@ public class Master {
 	public void startNWorkers(String jarName) throws IOException, InterruptedException
 	{
 		/*
-		 * Start N workers on machines chosen randomly from the list of available ones
+		 * Start N workers on the N first machines from the list of available ones
 		 */
 		
-		Random generator = new Random();
-		
 		Process[] workers = new Process[sliceNum];
-
-		ArrayList<String> usedIds = new ArrayList<String>();
 		
 		for( int i=0;i<=sliceNum;i++)
 		{
-			int id = generator.nextInt(workerIds.size() );
-			
-			if( !usedIds.contains(workerIds.get(id)) ) // problems !!!!!!!!
-			{
-				ProcessBuilder pb = new ProcessBuilder("ssh", workerIds.get(id), 
-						"hostname && java -jar "+jarName+ " "+ i).inheritIO();
+			ProcessBuilder pb = new ProcessBuilder("ssh", workerIds.get(i), 
+					"hostname && java -jar "+jarName+ " "+ i).inheritIO();
 				
-				workers[i] = pb.start();
+			workers[i] = pb.start();
 				
-				UMxMachines.put(i, workerIds.get(id));
-				
-				usedIds.add(workerIds.get(id));
-			}
-			
+			UMxMachines.put(i, workerIds.get(i));	
 		}
 			
 		for(Process p : workers)
