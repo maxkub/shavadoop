@@ -7,11 +7,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+//import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.StringTokenizer;
+
 
 
 
@@ -170,6 +172,7 @@ public class Master {
 	{
 		/*
 		 * Slice the file to analyze, each line is printed in a new file.
+		 * And print a new file for each slice.
 		 */
 
 		File file = new File(fileName);
@@ -202,19 +205,56 @@ public class Master {
 		}
 	}
 	
+	public void countLines(String filePath)
+	{
+		/*
+		 * count the number of lines in the file
+		 * using linux command wc -l
+		 */
+		
+		ProcessBuilder pb = new ProcessBuilder("wc", "-l", filePath);
+		
+		try 
+		{
+			Process p = pb.start();
+			
+			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			
+			String s;
+	        while ((s = br.readLine()) != null)
+	        {
+	        	StringTokenizer itr = new StringTokenizer(s.toString());
+				while(itr.hasMoreTokens())
+				{	
+					sliceNum = Integer.parseInt(itr.nextToken());
+					itr.nextToken();			
+				}
+	        }
+	        
+	        System.out.println("number of lines = "+sliceNum);
+	        	
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+	}
 	
-	public void startNWorkers(String jarName) throws IOException, InterruptedException
+	
+	public void startNWorkers(String filePath, String jarName) throws IOException, InterruptedException
 	{
 		/*
 		 * Start N workers on the N first machines from the list of available ones
 		 */
+		
+		this.countLines(filePath);
 		
 		Process[] workers = new Process[sliceNum];
 		
 		for( int i=0;i<=sliceNum;i++)
 		{
 			ProcessBuilder pb = new ProcessBuilder("ssh", workerIds.get(i), 
-					"hostname && java -jar "+jarName+ " "+ i).inheritIO();
+					"hostname && java -jar "+jarName+ " "+filePath+" "+ i).inheritIO();
 				
 			workers[i] = pb.start();
 				
@@ -225,7 +265,5 @@ public class Master {
 		{
 			p.waitFor();
 		}
-		
 	}
-
 }

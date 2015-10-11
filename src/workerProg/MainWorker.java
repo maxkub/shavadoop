@@ -4,6 +4,13 @@ public class MainWorker {
 	
 	public static void main(String[] args) throws InterruptedException
 	{
+		/*
+		 * args[0] : "filepath/name" of the file to work on
+		 * args[1] : the line number of the line on which to apply map
+		 *           (in UMxMachines : is also the key linked to worker's id)
+		 */
+		
+		// Tests --------------------------------------------------------------------------------
 		System.out.println("WorkerProg says : Hello!!");
 		
 		long startTime = System.nanoTime();     
@@ -13,6 +20,12 @@ public class MainWorker {
 		double estimatedTime = ( System.nanoTime() - startTime) * 10e-10;
 		
 		System.out.println("WorkerProg says : End compute after " + estimatedTime + " s");
+		//---------------------------------------------------------------------------------------
+		
+		Worker worker = new Worker(args[0]);
+		
+		int line = Integer.parseInt(args[1]);
+		worker.map(line);
 	}
 
 }
