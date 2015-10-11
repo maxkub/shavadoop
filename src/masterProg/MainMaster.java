@@ -10,9 +10,9 @@ public class MainMaster {
 	public static void main(String[] args) throws IOException, InterruptedException
 	{
 		/*
-		 * args[0] : "filepath/name" of workerIds
-		 * args[1] : "filepath/name.jar" of workerProg
-		 * args[2] : "filepath/name" of the file to work on
+		 * args[0] : file of workerIds ("filepath/name")
+		 * args[1] : jar of workerProg ("filepath/name.jar")
+		 * args[2] : file to work on ("filepath/name")
 		 */
 		
 		System.out.println("MasterProg says : Hello!!");
