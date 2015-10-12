@@ -29,9 +29,13 @@ public class MainMaster {
 		
 		//master.countLines(args[2]); //unnecessary : is done in startNWorkers 
 		
+		master.sliceFile(args[2]);
+		
 		master.startNWorkers(args[1], args[2]);
 		
-		System.out.println("End Master");
+		master.printDicos();
+		
+		System.out.println("Master : tout est fini");
 		
 	}
 

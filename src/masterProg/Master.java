@@ -97,17 +97,20 @@ public class Master {
 				
 			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			
-	        while ((s = br.readLine()) != null)
+	        while ( (s = br.readLine()) != null)
+	        {
 	        	
 	        	if(s.equals("OK"))
 	        	{
 	        		status = "available";
 	        	}
-	        	else
+	        	else if (s.equals("NOK"))
 	        	{
 	        		status = "Not available";
 	        		unreach.add(i);
+	        		System.out.println("remove "+i);
 	        	}
+	        }
 	        
 	        System.out.println(worker+" status: " + status);
 	        
@@ -120,6 +123,7 @@ public class Master {
 		
 		for(int j : unreach)
 		{
+			System.out.println("ind "+j);
 			try
 			{
 				workerIds.remove(j);
@@ -186,7 +190,7 @@ public class Master {
 	        {
 	            String line = sc.nextLine();
 	            
-	            PrintWriter writer = new PrintWriter(fileName+i+".txt", "UTF-8");
+	            PrintWriter writer = new PrintWriter(fileName+i);
 	            writer.println(line);
 	            writer.close();
 	            
@@ -226,7 +230,7 @@ public class Master {
 	        	StringTokenizer itr = new StringTokenizer(s.toString());
 				while(itr.hasMoreTokens())
 				{	
-					sliceNum = Integer.parseInt(itr.nextToken())-1;
+					sliceNum = Integer.parseInt(itr.nextToken());
 					itr.nextToken();			
 				}
 	        }
@@ -247,11 +251,15 @@ public class Master {
 		 * Start N workers on the N first machines from the list of available ones
 		 */
 		
-		this.countLines(filePath);
+		//this.countLines(filePath);
+		
+		//sliceNum = 5;
 		
 		Process[] workers = new Process[sliceNum];
 		
-		for( int i=0;i<=sliceNum;i++)
+		
+		
+		for( int i=0;i<sliceNum;i++)
 		{
 			ProcessBuilder pb = new ProcessBuilder("ssh", workerIds.get(i), 
 					"hostname && java -jar "+jarName+ " "+filePath+" "+ i).inheritIO();
@@ -265,5 +273,18 @@ public class Master {
 		{
 			p.waitFor();
 		}
+	}
+	
+	
+	public void printDicos()
+	{
+		System.out.println("UMxMachines");
+		System.out.println(UMxMachines);
+		
+		System.out.println("keyUMx");
+		System.out.println(keyUMx);
+		
+		System.out.println("RMxMachines");
+		System.out.println(RMxMachines);
 	}
 }

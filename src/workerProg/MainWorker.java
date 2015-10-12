@@ -1,8 +1,10 @@
 package workerProg;
 
+import java.io.IOException;
+
 public class MainWorker {
 	
-	public static void main(String[] args) throws InterruptedException
+	public static void main(String[] args) throws InterruptedException, IOException
 	{
 		/*
 		 * args[0] : "filepath/name" of the file to work on
@@ -11,7 +13,9 @@ public class MainWorker {
 		 */
 		
 		// Tests --------------------------------------------------------------------------------
-		/*System.out.println("WorkerProg says : Hello!!");
+	
+		/*
+		System.out.println("Worker says : Hello!!");
 		
 		long startTime = System.nanoTime();     
 		
@@ -19,16 +23,17 @@ public class MainWorker {
 		
 		double estimatedTime = ( System.nanoTime() - startTime) * 10e-10;
 		
-		System.out.println("WorkerProg says : End compute after " + estimatedTime + " s");
+		System.out.println("Worker says : End compute after " + estimatedTime + " s"); 
+		
 		*/
 		//---------------------------------------------------------------------------------------
 		
+		
 		Worker worker = new Worker(args[0]);
 		
+		worker.map2(Integer.parseInt(args[1]));
 		
-		worker.map(Integer.parseInt(args[1]));
-		
-		worker.printUM();
+		worker.showUM();
 		
 		int line = Integer.parseInt(args[1]);
 		worker.map(line);
