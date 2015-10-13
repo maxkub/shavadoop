@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 //import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
@@ -20,7 +21,7 @@ import java.util.StringTokenizer;
 
 public class Master {
 	
-	private ArrayList<String> workerIds = new ArrayList<String>();
+	private static ArrayList<String> workerIds = new ArrayList<String>();
 	
 	private int sliceNum;
 	
@@ -62,10 +63,14 @@ public class Master {
 	    {
 	        Scanner sc = new Scanner(file);   
 
+	        int k=0;
 	        while (sc.hasNextLine()) 
 	        {
 	            String i = sc.nextLine();
 	            workerIds.add(i);
+	            
+	            System.out.println("import "+k+" "+i);
+	            k++;
 	        }
 	        sc.close();
 	    } 
@@ -115,22 +120,17 @@ public class Master {
 	        System.out.println(worker+" status: " + status);
 	        
 	        p.waitFor();
-	        System.out.println ("exit: " + p.exitValue());
 	        p.destroy();
 	        
 	        i++;
 		}
 		
+	
+		Collections.reverse(unreach);
+		
 		for(int j : unreach)
 		{
-			System.out.println("ind "+j);
-			try
-			{
-				workerIds.remove(j);
-			}catch (IndexOutOfBoundsException e)
-			{
-				System.out.println(e.getMessage());
-			}	
+			workerIds.remove(j);	
 		}
 	}
 	
@@ -200,6 +200,8 @@ public class Master {
 	        
 	        sliceNum = i;
 	        
+	        System.out.println("number of lines = "+sliceNum);
+	        
 	        sc.close();
 	        
 	    } catch (FileNotFoundException e) {
@@ -251,12 +253,10 @@ public class Master {
 		 * Start N workers on the N first machines from the list of available ones
 		 */
 		
-		//this.countLines(filePath);
-		
 		//sliceNum = 5;
 		
 		Process[] workers = new Process[sliceNum];
-		
+		BufferedReader[] br = new BufferedReader[sliceNum];
 		
 		
 		for( int i=0;i<sliceNum;i++)
@@ -264,8 +264,12 @@ public class Master {
 			ProcessBuilder pb = new ProcessBuilder("ssh", workerIds.get(i), 
 					"hostname && java -jar "+jarName+ " "+filePath+" "+ i).inheritIO();
 				
-			workers[i] = pb.start();
-				
+			workers[i] = pb.start() ;
+			
+			InputStreamReader in = new InputStreamReader(workers[i].getInputStream());
+			
+			br[i] = new BufferedReader(in);
+						
 			UMxMachines.put(i, workerIds.get(i));	
 		}
 			
@@ -273,6 +277,38 @@ public class Master {
 		{
 			p.waitFor();
 		}
+		
+		
+		listenToWorkers(br);
+		
+	}
+	
+	
+	
+	private void listenToWorkers(BufferedReader[] br) throws IOException
+	{
+		/*
+		 * listen to the workers to get their keys
+		 */
+		
+		for(BufferedReader buff : br )
+		{
+			
+			String s;
+	        while ((s = buff.readLine()) != null)
+	        {
+	        	StringTokenizer itr = new StringTokenizer(s.toString());
+				while(itr.hasMoreTokens())
+				{	
+					
+					String key = itr.nextToken();
+					itr.nextToken();			
+				}
+	        }
+			
+		}
+	
+		
 	}
 	
 	

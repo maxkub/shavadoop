@@ -8,7 +8,7 @@ public class MainWorker {
 	{
 		/*
 		 * args[0] : "filepath/name" of the file to work on
-		 * args[1] : the line-number of the line on which to apply map
+		 * args[1] : task_id : the line-number of the line on which to apply map
 		 *           (in UMxMachines : is also the key linked to worker's id)
 		 */
 		
@@ -29,14 +29,12 @@ public class MainWorker {
 		//---------------------------------------------------------------------------------------
 		
 		
-		Worker worker = new Worker(args[0]);
+		Worker worker = new Worker(args[0], args[1]);
 		
-		worker.map2(Integer.parseInt(args[1]));
+		worker.map();
 		
-		worker.showUM();
-		
-		int line = Integer.parseInt(args[1]);
-		worker.map(line);
+		//worker.showUM();
+	
 	}
 
 }

@@ -9,84 +9,39 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
 public class Worker {
 	
-	private String worker_id;
+	private Integer task_id;
 	private String worker_task;
 	private String filePath;
 	
 	// unsorted map
-	private HashMap<String,Integer> UM = new HashMap<String,Integer>();
+	//private HashMap<String,Integer> UM = new HashMap<String,Integer>();
+	private HashMap<String,ArrayList<Integer>> UM = new HashMap<String,ArrayList<Integer>>();
 	
-	public Worker()
-	{
-	}
 	
-	public Worker(String filePath)
+	public Worker(String filePath, String id)
 	{
-		this.filePath = filePath; /// tester que filePath est vraie une copie
-	}
-	
-	public void setFile(String filePath)
-	{
-		this.filePath = filePath; /// tester que filePath est vraie une copie
-	}
-	
-	public void map(int l)
-	{
-		/*
-		 * Map function : produces the unsorted map
-		 */
-		Path path = Paths.get(filePath);
-		try 
-		{
-			String line = Files.readAllLines(path,StandardCharsets.UTF_8).get(l);
-			
-			System.out.println("line "+l+" "+line);
-			
-			StringTokenizer itr = new StringTokenizer(line);
-			while(itr.hasMoreTokens())
-			{	
-				String key = itr.nextToken();
-				
-				if(UM.containsKey(key))
-				{
-					UM.put(key, UM.get(key)+1);	
-				}
-				else
-				{
-					UM.put(key, 1);	
-				}
-				
-				System.out.println("um : "+l+" "+key+" "+UM.get(key));
-				
-			}
-			
-			this.writeUM(l);
-		} 
-		catch (IOException e) 
-		{
-			e.printStackTrace();
-		}
-
-		
+		this.filePath = filePath;
+		this.task_id = Integer.parseInt(id);
 	}
 	
 	
 	
-	
-	public void map2(int l)
+	public void map()
 	{
 		/*
 		 * Map function : produces the unsorted map
 		 */
 		
 		
-		File file = new File(filePath+l);
+		File file = new File(filePath+task_id);
 	    
 	    try 
 	    {
@@ -101,22 +56,10 @@ public class Worker {
 				{	
 					String key = itr.nextToken();
 					
-					if(UM.containsKey(key))
-					{
-						UM.put(key, UM.get(key)+1);	
-					}
-					else
-					{
-						UM.put(key, 1);	
-					}
-					
-					System.out.println("um : "+l+" "+key+" "+UM.get(key));
-					
+					addToList(UM,key,1);
 				}
 				
-				
-				this.writeUM(l);
-	       
+				this.writeUM();
 	        }
 	        
 	        sc.close();
@@ -131,15 +74,34 @@ public class Worker {
 	}
 	
 	
-	
-	public void writeUM(int l) throws FileNotFoundException, UnsupportedEncodingException
+	public void sendKeys() throws IOException
 	{
-		PrintWriter writer = new PrintWriter("/cal/homes/mkubryk/workspace/shavadoop/tempData/UM-"+l+".txt", "UTF-8");
+		for(String s : UM.keySet())
+		{
+			ProcessBuilder pb = new ProcessBuilder("echo", s).inheritIO();
+			pb.start() ;
+			
+			ProcessBuilder pb = new ProcessBuilder("echo", (Str task_id).inheritIO();
+			pb.start() ;
+		}
+	}
+	
+	
+	
+	public void writeUM() throws FileNotFoundException, UnsupportedEncodingException
+	{
+		PrintWriter writer = new PrintWriter("/cal/homes/mkubryk/workspace/shavadoop/tempData/UM-"+task_id+".txt", "UTF-8");
 		
 		for(String k : UM.keySet())
 		{
-			System.out.println("UM : "+k+" "+UM.get(k));
-			writer.println(k+" "+UM.get(k));
+			writer.print(k);
+			
+			for(int i : UM.get(k))
+			{
+				writer.print(" "+i);
+			}
+			
+			writer.println();
 		}
 		writer.close();
 		
@@ -149,13 +111,33 @@ public class Worker {
 	{
 		ProcessBuilder pb = new ProcessBuilder("hostname").inheritIO();
 		
-		try {
-			Process p = pb.start();
+		try 
+		{
+			pb.start();
 		} 
-		catch (IOException e) {
+		catch (IOException e) 
+		{
 			e.printStackTrace();
 		}
 		
-		System.out.println(UM);
+		System.out.println("show :" + UM);
 	}
+	
+	
+	
+	public void addToList( HashMap<String,ArrayList<Integer>> Hash, String mapKey, Integer myItem) {
+		
+	    ArrayList<Integer> itemsList = Hash.get(mapKey);
+
+	    // if list does not exist create it
+	    if(itemsList == null) itemsList = new ArrayList<Integer>();
+	     
+	    itemsList.add(myItem);
+	    
+	    Hash.put(mapKey, itemsList);
+	    
+	}
+	
+	
+	
 }
