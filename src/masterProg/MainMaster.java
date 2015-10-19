@@ -11,8 +11,7 @@ public class MainMaster {
 	{
 		/*
 		 * args[0] : file of workerIds ("filepath/name")
-		 * args[1] : jar of workerProg ("filepath/name.jar")
-		 * args[2] : file to work on ("filepath/name")
+		 * args[1] : file to work on ("filepath/name")
 		 */
 		
 		System.out.println("MasterProg says : Hello!!");
@@ -29,11 +28,15 @@ public class MainMaster {
 		
 		//master.countLines(args[2]); //unnecessary : is done in startNWorkers 
 		
-		master.sliceFile(args[2]);
+		master.sliceFile(args[1]);
 		
-		master.startNWorkers(args[1], args[2]);
+		master.startMapers(args[1]);
+		
+		master.startReducers();
 		
 		master.printDicos();
+		
+		master.writeMapRedOutputs(args[1]);
 		
 		System.out.println("Master : tout est fini");
 		

@@ -2,7 +2,7 @@ package workerProg;
 
 import java.io.IOException;
 
-public class MainWorker {
+public class MainMapper {
 	
 	public static void main(String[] args) throws InterruptedException, IOException
 	{
@@ -10,6 +10,7 @@ public class MainWorker {
 		 * args[0] : "filepath/name" of the file to work on
 		 * args[1] : task_id : the line-number of the line on which to apply map
 		 *           (in UMxMachines : is also the key linked to worker's id)
+		 * args[2] : "maper" or "reducer" 
 		 */
 		
 		// Tests --------------------------------------------------------------------------------
@@ -31,7 +32,14 @@ public class MainWorker {
 		
 		Worker worker = new Worker(args[0], args[1]);
 		
-		worker.map();
+		if(args[2]=="maper")
+		{
+			worker.map();
+		}
+		else if(args[2]=="reducer")
+		{
+			worker.reduce();
+		}
 		
 		//worker.showUM();
 	

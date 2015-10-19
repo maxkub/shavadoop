@@ -1,32 +1,25 @@
-package workerProg;
+package mapperProg;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
-public class Worker {
+public class Mapper {
+	
 	
 	private Integer task_id;
-	private String worker_task;
 	private String filePath;
 	
-	// unsorted map
-	//private HashMap<String,Integer> UM = new HashMap<String,Integer>();
 	private HashMap<String,ArrayList<Integer>> UM = new HashMap<String,ArrayList<Integer>>();
 	
 	
-	public Worker(String filePath, String id)
+	public Mapper(String filePath, String id)
 	{
 		this.filePath = filePath;
 		this.task_id = Integer.parseInt(id);
@@ -55,7 +48,6 @@ public class Worker {
 				while(itr.hasMoreTokens())
 				{	
 					String key = itr.nextToken();
-					//System.out.println(task_id+" "+key); // ecrit le nom de la clé sur le standard ouput du process
 					addToList(UM,key,1);
 				}
 				
@@ -76,17 +68,12 @@ public class Worker {
 	}
 	
 	
-	public void reduce()
-	{
-		
-	}
-	
 	
 	public void sendKeys() throws IOException
 	{
 		for(String s : UM.keySet())
 		{
-			System.out.println(task_id+" "+s);
+			System.out.println(s+" "+task_id);
 		}
 	}
 	
@@ -111,6 +98,8 @@ public class Worker {
 		
 	}
 	
+	
+	
 	public void showUM()
 	{
 		ProcessBuilder pb = new ProcessBuilder("hostname").inheritIO();
@@ -129,7 +118,8 @@ public class Worker {
 	
 	
 	
-	public void addToList( HashMap<String,ArrayList<Integer>> Hash, String mapKey, Integer myItem) {
+	public void addToList( HashMap<String,ArrayList<Integer>> Hash, String mapKey, Integer myItem) 
+	{
 		
 	    ArrayList<Integer> itemsList = Hash.get(mapKey);
 
@@ -142,6 +132,5 @@ public class Worker {
 	    
 	}
 	
-	
-	
+
 }
