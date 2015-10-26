@@ -31,8 +31,10 @@ public class MainMaster {
 		master.sliceFile(args[1]);
 		
 		master.startMapers(args[1]);
+		//master.startMapers_withTest(args[1]);
 		
 		master.startReducers();
+		//master.startReducers_withTest();
 		
 		master.printDicos();
 		

@@ -25,6 +25,7 @@ public class Master {
 	private static ArrayList<String> workerIds = new ArrayList<String>();
 	
 	private int taskNum; // number of tasks 
+	private int available_machines;
 	
 	private HashMap<Integer,String> UMxMachines = new HashMap<Integer,String>();
 	private HashMap<String,ArrayList<Integer>> keyUMx = new HashMap<String,ArrayList<Integer>>();
@@ -95,6 +96,7 @@ public class Master {
 		
 		ArrayList<Integer> unreach = new ArrayList<Integer>();
 		
+		available_machines = 0;
 		int i = 0;
 		for(String worker : workerIds)
 		{	
@@ -110,6 +112,8 @@ public class Master {
 	        	if(s.equals("OK"))
 	        	{
 	        		status = "available";
+	        		available_machines++;
+	        		
 	        	}
 	        	else if (s.equals("NOK"))
 	        	{
@@ -284,6 +288,98 @@ public class Master {
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	public void startMapers_withTest(String filePath) throws IOException, InterruptedException
+	{
+		/*
+		 * Start N workers on the N first machines from the list of available ones
+		 */
+		
+		ArrayList<String> workersForMap = new ArrayList<String>();
+		
+		// copying the workerIds Array
+		for(String ids : workerIds) 
+		{
+		    workersForMap.add(ids);
+		}
+		
+		
+		Process[] workers = new Process[taskNum];
+		
+		for( int i=0;i<taskNum;i++)
+		{
+			
+			int j =0;
+			for(String workerId : workersForMap)
+			{	
+				System.out.println(j);
+				
+				String[] command = {"/bin/sh", "-c", "ssh -o ConnectTimeout=1 "+workerId+" 'echo 2>&1' && echo OK || echo NOK"};
+				
+				Process p = Runtime.getRuntime().exec(command);
+					
+				BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				
+				String s;
+				s = br.readLine();
+				while ( (s = br.readLine()) == null)
+		        {
+					
+		        }
+				
+				System.out.println("read "+s);
+		        	
+		        if(s.equals("OK"))
+		        {
+		        	
+		        	System.out.println("worker "+workersForMap.get(j));
+		        		
+		        	ProcessBuilder pb = new ProcessBuilder("ssh", workersForMap.get(j), 
+							"java -jar ~/shavadoopMapper.jar "+filePath+" "+ i);//.inheritIO();
+						
+					workers[i] = pb.start() ;
+					
+					UMxMachines.put(i, workersForMap.get(j));	
+					
+					BufferedReader br_worker = new BufferedReader(new InputStreamReader(workers[i].getInputStream()));
+					
+					listenToWorkers(br_worker, keyUMx);
+					
+					workersForMap.remove(j);
+		        	
+		        	break; // exit the loop on workerIds
+		        		
+		        }
+		        else
+		        {
+		        	System.out.println("worker "+workersForMap.get(j)+" Nok");
+		        }
+		        
+		        j++;
+			}
+			
+		}
+		
+			
+		for(Process p : workers)
+		{
+			p.waitFor();
+		}
+		
+	}
+	
+	
+	
+	
+	
+	
 	public void startReducers() throws IOException, InterruptedException
 	{
 		
@@ -291,6 +387,7 @@ public class Master {
 		Process[] workers = new Process[keyUMx.size()];
 		
 		int machine = 0;
+		int worker = 0;
 		for(String key : keyUMx.keySet())
 		{
 			
@@ -302,18 +399,23 @@ public class Master {
 			
 			System.out.println(tempfilesIDs);
 			
+
 			ProcessBuilder pb = new ProcessBuilder("ssh", workerIds.get(machine), 
 					"java -jar ~/shavadoopReducer.jar "+key+" "+ tempfilesIDs);//.inheritIO();
+			
 				
-			workers[machine] = pb.start() ;
+			workers[worker] = pb.start() ;
 			
 			RMxMachines.put(key, workerIds.get(machine));	
 			
-			BufferedReader br = new BufferedReader(new InputStreamReader(workers[machine].getInputStream()));
+			BufferedReader br = new BufferedReader(new InputStreamReader(workers[worker].getInputStream()));
 			
 			listenToWorkers(br, mapRedOutputs);
 			
 			machine++;
+			worker++;
+			
+			if (machine == available_machines) machine = 0;
 	
 		}
 		
@@ -323,6 +425,96 @@ public class Master {
 		}
 		
 	}
+	
+	
+	
+	
+	
+	
+	
+	public void startReducers_withTest() throws IOException, InterruptedException
+	{
+		
+		ArrayList<String> workersForRed = new ArrayList<String>();
+		
+		// copying the workerIds Array
+		for(String ids : workerIds) 
+		{
+		    workersForRed.add(ids);
+		}
+		
+		Process[] workers = new Process[keyUMx.size()];
+		
+		int worker = 0;
+		for(String key : keyUMx.keySet())
+		{
+			
+			String tempfilesIDs = "";
+			for(int i : keyUMx.get(key))
+			{
+				tempfilesIDs += " "+i;
+			}
+			
+			System.out.println(tempfilesIDs);
+					
+			
+			int i =0;
+			for(String workerId : workersForRed)
+			{	
+				String[] command = {"/bin/sh", "-c", "ssh -o ConnectTimeout=1 "+workerId+" 'echo 2>&1' && echo OK || echo NOK"};
+				
+				Process p = Runtime.getRuntime().exec(command);
+					
+				BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				
+				String s;
+				s = br.readLine();
+				while ( (s = br.readLine()) == null)
+		        {
+					
+		        }
+		        	
+		        if(s.equals("OK"))
+		        {
+		        		
+		        	ProcessBuilder pb = new ProcessBuilder("ssh", workersForRed.get(i), 
+		    				"java -jar ~/shavadoopReducer.jar "+key+" "+ tempfilesIDs);//.inheritIO();
+		    			
+		    		workers[worker] = pb.start() ;
+		    			
+		    		RMxMachines.put(key, workersForRed.get(i));	
+		    			
+		    		BufferedReader brWorker = new BufferedReader(new InputStreamReader(workers[worker].getInputStream()));
+		    			
+		    		listenToWorkers(brWorker, mapRedOutputs);
+		    		
+		    		workersForRed.remove(i);
+		    		
+		    		worker++;
+		        		
+		        	break; // exit the loop on workerIds
+		        		
+		        }
+		        
+		        i++;
+			
+			}
+			
+	
+		}
+		
+		for(Process p : workers)
+		{
+			p.waitFor();
+		}
+		
+	}
+	
+	
+	
+	
+	
+	
 	
 	
 	
