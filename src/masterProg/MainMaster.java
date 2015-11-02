@@ -26,9 +26,14 @@ public class MainMaster {
 		master.testWorkers();
 		
 		master.sliceFile(args[1], args[2]);
+		//master.sliceFile1(args[1]);
 		
-		master.startMapers2(args[1]);
-		//master.startMapers_withTest(args[1]);
+		//master.startMapers_withThreads(args[1]);
+		//master.startMapers2(args[1]);
+		master.startMapers(args[1]);
+		
+		
+		master.printDicos();
 		
 		master.startReducers();
 		//master.startReducers_withTest();

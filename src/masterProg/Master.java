@@ -412,30 +412,28 @@ public class Master {
 		 * If there more tasks than machines, we loop on the available machines.
 		 */
 		
-		Process[] workers = new Process[taskNum];
-		BufferedReader[] br = new BufferedReader[taskNum];
+		Thread[] mappers = new Thread[taskNum];
 		
 		int machine = 0;
 		
 		for( int i=0;i<taskNum;i++)
 		{
 			
-			StartMappers maper = new StartMappers(workerIds.get(machine), filePath+" "+ i);
-			
+			mappers[i] = new Thread(new StartMappers(workerIds.get(machine), filePath+" "+ i, keyUMx));
+			mappers[i].start();
+		
 			UMxMachines.put(i, workerIds.get(machine));	
 			
 			machine++;
 			
 			if (machine == available_machines) machine = 0;
-			
 	
 		}
 		
-		listenToWorkers2(br, keyUMx);
 			
-		for(Process p : workers)
+		for(Thread t : mappers)
 		{
-			p.waitFor();
+			t.join();
 		}
 		
 	}
@@ -597,6 +595,55 @@ public class Master {
 	
 	
 
+	
+	
+	
+	
+	
+	public void startReducers_withThreads() throws IOException, InterruptedException
+	{
+		/*
+		 * If there more tasks than machines, we loop on the available machines.
+		 */
+	
+		
+		Thread[] reducers = new Thread[keyUMx.size()];
+		
+		int machine = 0;
+		int worker = 0;
+		for(String key : keyUMx.keySet())
+		{
+			
+			String tempfilesIDs = "";
+			for(int i : keyUMx.get(key))
+			{
+				tempfilesIDs += " "+i;
+			}
+			
+			//System.out.println(tempfilesIDs);
+			
+			reducers[worker] = new Thread( new StartReducers(key, workerIds.get(machine), tempfilesIDs, mapRedOutputs));
+
+			reducers[worker].start();
+			
+			RMxMachines.put(key, workerIds.get(machine));		
+			
+			machine++;
+			worker++;
+			
+			if (machine == available_machines) machine = 0;
+	
+		}
+		
+		
+		for(Thread t : reducers)
+		{
+			t.join();
+		}
+		
+	}
+	
+	
 	
 	
 
