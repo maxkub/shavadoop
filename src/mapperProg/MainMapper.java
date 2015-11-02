@@ -13,22 +13,6 @@ public class MainMapper {
 		 *           (in UMxMachines : is also the key linked to worker's id) 
 		 */
 		
-		// Tests --------------------------------------------------------------------------------
-	
-		/*
-		System.out.println("Worker says : Hello!!");
-		
-		long startTime = System.nanoTime();     
-		
-		Thread.sleep(10000);
-		
-		double estimatedTime = ( System.nanoTime() - startTime) * 10e-10;
-		
-		System.out.println("Worker says : End compute after " + estimatedTime + " s"); 
-		
-		*/
-		//---------------------------------------------------------------------------------------
-		
 		
 		Mapper mapper = new Mapper(args[0], args[1]);
 		

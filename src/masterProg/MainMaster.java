@@ -12,6 +12,7 @@ public class MainMaster {
 		/*
 		 * args[0] : file of workerIds ("filepath/name")
 		 * args[1] : file to work on ("filepath/name")
+		 * args[2] : number of lines to take in the sliced files
 		 */
 		
 		System.out.println("MasterProg says : Hello!!");
@@ -24,13 +25,9 @@ public class MainMaster {
 		
 		master.testWorkers();
 		
-		/////master.startWorker2(args[1]);
+		master.sliceFile(args[1], args[2]);
 		
-		//master.countLines(args[2]); //unnecessary : is done in startNWorkers 
-		
-		master.sliceFile(args[1]);
-		
-		master.startMapers(args[1]);
+		master.startMapers2(args[1]);
 		//master.startMapers_withTest(args[1]);
 		
 		master.startReducers();

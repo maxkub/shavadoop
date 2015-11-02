@@ -20,7 +20,8 @@ import java.util.StringTokenizer;
 
 
 
-public class Master {
+public class Master_threads extends Thread
+{
 	
 	private static ArrayList<String> workerIds = new ArrayList<String>();
 	
@@ -33,7 +34,7 @@ public class Master {
 	private HashMap<String,ArrayList<Integer>> mapRedOutputs = new HashMap<String,ArrayList<Integer>>();
 	
 	
-	public Master()
+	public Master_threads()
 	{
 	}
 	
@@ -402,56 +403,6 @@ public class Master {
 	
 	
 	
-	
-	
-	
-	public void startMapers_withThreads(String filePath) throws IOException, InterruptedException
-	{
-		/*
-		 * Start N workers on the N first machines from the list of available ones.
-		 * If there more tasks than machines, we loop on the available machines.
-		 */
-		
-		Process[] workers = new Process[taskNum];
-		BufferedReader[] br = new BufferedReader[taskNum];
-		
-		int machine = 0;
-		
-		for( int i=0;i<taskNum;i++)
-		{
-			
-			StartMappers maper = new StartMappers(workerIds.get(machine), filePath+" "+ i);
-			
-			UMxMachines.put(i, workerIds.get(machine));	
-			
-			machine++;
-			
-			if (machine == available_machines) machine = 0;
-			
-	
-		}
-		
-		listenToWorkers2(br, keyUMx);
-			
-		for(Process p : workers)
-		{
-			p.waitFor();
-		}
-		
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	public void startMapers_withTest(String filePath) throws IOException, InterruptedException
 	{
 		
@@ -552,7 +503,6 @@ public class Master {
 		
 		
 		Process[] workers = new Process[keyUMx.size()];
-		BufferedReader[] br = new BufferedReader[keyUMx.size()];
 		
 		int machine = 0;
 		int worker = 0;
@@ -565,84 +515,20 @@ public class Master {
 				tempfilesIDs += " "+i;
 			}
 			
-			//System.out.println(tempfilesIDs);
+			System.out.println(tempfilesIDs);
 			
 
 			ProcessBuilder pb = new ProcessBuilder("ssh", workerIds.get(machine), 
 					"java -jar ~/shavadoopReducer.jar "+key+" "+ tempfilesIDs);//.inheritIO();
 			
+				
 			workers[worker] = pb.start() ;
 			
 			RMxMachines.put(key, workerIds.get(machine));	
 			
-			br[worker] = new BufferedReader(new InputStreamReader(workers[worker].getInputStream()));
+			BufferedReader br = new BufferedReader(new InputStreamReader(workers[worker].getInputStream()));
 			
-			
-			
-			machine++;
-			worker++;
-			
-			if (machine == available_machines) machine = 0;
-	
-		}
-		
-		listenToWorkers2(br, mapRedOutputs);
-		
-		for(Process p : workers)
-		{
-			p.waitFor();
-		}
-		
-	}
-	
-	
-
-	
-	
-
-	
-	public void startReducers2(int N) throws IOException, InterruptedException
-	{
-		/*
-		 * If there more tasks than machines, we loop on the available machines.
-		 * Sending group of keys to reducers.
-		 */
-		
-		
-		Process[] workers = new Process[keyUMx.size()];
-		
-		int machine = 0;
-		int worker = 0;
-		for(String key : keyUMx.keySet())
-		{
-			int count = 0;
-			
-			for(int k=0;k<N;k++)
-			{
-				String tempfilesIDs = key;
-				for(int i : keyUMx.get(key))
-				{
-					tempfilesIDs += " "+i;
-				}
-				tempfilesIDs += ",";
-				
-				
-				System.out.println(tempfilesIDs);
-				
-
-				ProcessBuilder pb = new ProcessBuilder("ssh", workerIds.get(machine), 
-						"java -jar ~/shavadoopReducer.jar "+key+" "+ tempfilesIDs);//.inheritIO();
-				
-					
-				workers[worker] = pb.start() ;
-				
-				RMxMachines.put(key, workerIds.get(machine));	
-				
-				BufferedReader br = new BufferedReader(new InputStreamReader(workers[worker].getInputStream()));
-				
-				listenToWorkers(br, mapRedOutputs);
-				
-			}
+			listenToWorkers(br, mapRedOutputs);
 			
 			machine++;
 			worker++;
@@ -657,7 +543,6 @@ public class Master {
 		}
 		
 	}
-	
 	
 	
 	
