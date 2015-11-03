@@ -12,6 +12,7 @@ public class MainMaster {
 		/*
 		 * args[0] : file of workerIds ("filepath/name")
 		 * args[1] : file to work on ("filepath/name")
+		 * args[2] : number to lines in a slice of the file
 		 */
 		
 		System.out.println("MasterProg says : Hello!!");
@@ -28,7 +29,8 @@ public class MainMaster {
 		
 		//master.countLines(args[2]); //unnecessary : is done in startNWorkers 
 		
-		master.sliceFile(args[1]);
+		master.sliceFile_num(args[1], args[2]);
+		//master.sliceFile(args[1]);
 		
 		master.startMapers(args[1]);
 		//master.startMapers_withTest(args[1]);

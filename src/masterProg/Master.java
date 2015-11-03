@@ -141,41 +141,8 @@ public class Master {
 	}
 	
 	
-	public void startWorker(String jarName) throws IOException, InterruptedException
-	{
-		Process p;
-		String s;
-		
-		String[] command = {"/bin/sh", "-c", "ssh "+workerIds.get(0)+" 'hostname && java -jar "+jarName+"'"};
-		p = Runtime.getRuntime().exec(command);
-		
-		
-		BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-		
-        while ((s = br.readLine()) != null)
-        	System.out.println(s);
-        
-        p.waitFor();
-        p.destroy();
-		
-	}
-	
-	public void startWorker2(String jarName) throws IOException, InterruptedException
-	{
-		/*
-		 * Alternative startWorker
-		 */
-		
-		Random generator = new Random();
-		int i = generator.nextInt(workerIds.size() );
-		
-		ProcessBuilder pb = new ProcessBuilder("ssh", workerIds.get(i), "hostname && java -jar "+jarName +" "+ i).inheritIO();
-		
-		Process p = pb.start();
-		
-		p.waitFor();
-		p.destroy();
-	}
+
+
 	
 	
 	public void sliceFile(String fileName)
@@ -216,6 +183,57 @@ public class Master {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	
+	
+	public void sliceFile_num(String fileName, String numlines)
+	{
+		/*
+		 * Slice the file to analyze by groups of size numlines, each group is printed in a new file.
+		 */
+
+		int numline = Integer.parseInt(numlines); 
+		
+		File file = new File(fileName);
+	    
+	    try 
+	    {
+	        Scanner sc = new Scanner(file);   
+
+	        int i = 0;
+	        while (sc.hasNextLine()) 
+	        {
+	            
+	            PrintWriter writer = new PrintWriter(fileName+i);
+	            
+	            int j = 0;
+	            while (sc.hasNextLine() && j<numline)
+	            {
+	            	String line = sc.nextLine();
+		            writer.println(line);
+		            j++;
+	            }
+	            
+	            writer.close();
+	            
+	            i++;
+	       
+	        }
+	        
+	        taskNum = i;
+	        
+	        System.out.println("number of tasks = "+taskNum);
+	        
+	        sc.close();
+	        
+	    } catch (FileNotFoundException e) {
+	        e.printStackTrace();
+	    } catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	
 	public void countLines(String filePath)
 	{
@@ -262,6 +280,7 @@ public class Master {
 		 */
 		
 		Process[] workers = new Process[taskNum];
+		BufferedReader[] br  = new BufferedReader[taskNum];
 		
 		int machine = 0;
 		for( int i=0;i<taskNum;i++)
@@ -273,9 +292,9 @@ public class Master {
 			
 			UMxMachines.put(i, workerIds.get(machine));	
 			
-			BufferedReader br = new BufferedReader(new InputStreamReader(workers[i].getInputStream()));
+			br[i] = new BufferedReader(new InputStreamReader(workers[i].getInputStream()));
 			
-			listenToWorkers(br, keyUMx);
+			//listenToWorkers(br[i], keyUMx);
 			
 			machine++;
 			
@@ -288,94 +307,7 @@ public class Master {
 			p.waitFor();
 		}
 		
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	public void startMapers_withTest(String filePath) throws IOException, InterruptedException
-	{
-		/*
-		 * Start N workers on the N first machines from the list of available ones
-		 */
-		
-		ArrayList<String> workersForMap = new ArrayList<String>();
-		
-		// copying the workerIds Array
-		for(String ids : workerIds) 
-		{
-		    workersForMap.add(ids);
-		}
-		
-		
-		Process[] workers = new Process[taskNum];
-		
-		for( int i=0;i<taskNum;i++)
-		{
-			
-			int j =0;
-			for(String workerId : workersForMap)
-			{	
-				System.out.println(j);
-				
-				String[] command = {"/bin/sh", "-c", "ssh -o ConnectTimeout=1 "+workerId+" 'echo 2>&1' && echo OK || echo NOK"};
-				
-				Process p = Runtime.getRuntime().exec(command);
-					
-				BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-				
-				String s;
-				s = br.readLine();
-				while ( (s = br.readLine()) == null)
-		        {
-					
-		        }
-				
-				System.out.println("read "+s);
-		        	
-		        if(s.equals("OK"))
-		        {
-		        	
-		        	System.out.println("worker "+workersForMap.get(j));
-		        		
-		        	ProcessBuilder pb = new ProcessBuilder("ssh", workersForMap.get(j), 
-							"java -jar ~/shavadoopMapper.jar "+filePath+" "+ i);//.inheritIO();
-						
-					workers[i] = pb.start() ;
-					
-					UMxMachines.put(i, workersForMap.get(j));	
-					
-					BufferedReader br_worker = new BufferedReader(new InputStreamReader(workers[i].getInputStream()));
-					
-					listenToWorkers(br_worker, keyUMx);
-					
-					workersForMap.remove(j);
-		        	
-		        	break; // exit the loop on workerIds
-		        		
-		        }
-		        else
-		        {
-		        	System.out.println("worker "+workersForMap.get(j)+" Nok");
-		        }
-		        
-		        j++;
-			}
-			
-		}
-		
-			
-		for(Process p : workers)
-		{
-			p.waitFor();
-		}
+		listenToWorkers2(br, keyUMx);
 		
 	}
 	
@@ -387,8 +319,8 @@ public class Master {
 	public void startReducers() throws IOException, InterruptedException
 	{
 		
-		
 		Process[] workers = new Process[keyUMx.size()];
+		BufferedReader[] br  = new BufferedReader[keyUMx.size()];
 		
 		int machine = 0;
 		int worker = 0;
@@ -412,9 +344,9 @@ public class Master {
 			
 			RMxMachines.put(key, workerIds.get(machine));	
 			
-			BufferedReader br = new BufferedReader(new InputStreamReader(workers[worker].getInputStream()));
+			br[worker] = new BufferedReader(new InputStreamReader(workers[worker].getInputStream()));
 			
-			listenToWorkers(br, mapRedOutputs);
+			//listenToWorkers(br[worker], mapRedOutputs);
 			
 			machine++;
 			worker++;
@@ -428,96 +360,9 @@ public class Master {
 			p.waitFor();
 		}
 		
-	}
-	
-	
-	
-	
-	
-	
-	
-	public void startReducers_withTest() throws IOException, InterruptedException
-	{
-		
-		ArrayList<String> workersForRed = new ArrayList<String>();
-		
-		// copying the workerIds Array
-		for(String ids : workerIds) 
-		{
-		    workersForRed.add(ids);
-		}
-		
-		Process[] workers = new Process[keyUMx.size()];
-		
-		int worker = 0;
-		for(String key : keyUMx.keySet())
-		{
-			
-			String tempfilesIDs = "";
-			for(int i : keyUMx.get(key))
-			{
-				tempfilesIDs += " "+i;
-			}
-			
-			System.out.println(tempfilesIDs);
-					
-			
-			int i =0;
-			for(String workerId : workersForRed)
-			{	
-				String[] command = {"/bin/sh", "-c", "ssh -o ConnectTimeout=1 "+workerId+" 'echo 2>&1' && echo OK || echo NOK"};
-				
-				Process p = Runtime.getRuntime().exec(command);
-					
-				BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-				
-				String s;
-				s = br.readLine();
-				while ( (s = br.readLine()) == null)
-		        {
-					
-		        }
-		        	
-		        if(s.equals("OK"))
-		        {
-		        		
-		        	ProcessBuilder pb = new ProcessBuilder("ssh", workersForRed.get(i), 
-		    				"java -jar ~/shavadoopReducer.jar "+key+" "+ tempfilesIDs);//.inheritIO();
-		    			
-		    		workers[worker] = pb.start() ;
-		    			
-		    		RMxMachines.put(key, workersForRed.get(i));	
-		    			
-		    		BufferedReader brWorker = new BufferedReader(new InputStreamReader(workers[worker].getInputStream()));
-		    			
-		    		listenToWorkers(brWorker, mapRedOutputs);
-		    		
-		    		workersForRed.remove(i);
-		    		
-		    		worker++;
-		        		
-		        	break; // exit the loop on workerIds
-		        		
-		        }
-		        
-		        i++;
-			
-			}
-			
-	
-		}
-		
-		for(Process p : workers)
-		{
-			p.waitFor();
-		}
+		listenToWorkers2(br, mapRedOutputs);
 		
 	}
-	
-	
-	
-	
-	
 	
 	
 	
@@ -544,6 +389,39 @@ public class Master {
         }
 	
 	}
+	
+	
+	
+	
+	private void listenToWorkers2(BufferedReader[] br, HashMap<String,ArrayList<Integer>> hash) throws IOException
+	{
+		/*
+		 * listen to the workers to get their keys
+		 */
+		
+		
+		for(int i = 0;i<taskNum;i++)
+		{
+			String s;
+	        while ((s = br[i].readLine()) != null)
+	        {
+	        	StringTokenizer itr = new StringTokenizer(s.toString());
+								
+	        	String key = itr.nextToken();
+				int task = Integer.parseInt(itr.nextToken());
+				
+				System.out.println("master listen : "+task+" "+key);
+					
+				addToList(hash,key,task);
+
+	        }
+		}
+		
+		
+	
+	}
+	
+	
 	
 	
 	public void writeMapRedOutputs(String filepath) throws FileNotFoundException, UnsupportedEncodingException
