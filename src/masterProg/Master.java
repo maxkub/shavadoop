@@ -263,19 +263,23 @@ public class Master {
 		
 		Process[] workers = new Process[taskNum];
 		
-		
+		int machine = 0;
 		for( int i=0;i<taskNum;i++)
 		{
-			ProcessBuilder pb = new ProcessBuilder("ssh", workerIds.get(i), 
+			ProcessBuilder pb = new ProcessBuilder("ssh", workerIds.get(machine), 
 					"java -jar ~/shavadoopMapper.jar "+filePath+" "+ i);//.inheritIO();
 				
 			workers[i] = pb.start() ;
 			
-			UMxMachines.put(i, workerIds.get(i));	
+			UMxMachines.put(i, workerIds.get(machine));	
 			
 			BufferedReader br = new BufferedReader(new InputStreamReader(workers[i].getInputStream()));
 			
 			listenToWorkers(br, keyUMx);
+			
+			machine++;
+			
+			if (machine == available_machines) machine = 0;
 	
 		}
 			
