@@ -28,9 +28,10 @@ public class Master {
 	private int available_machines;
 	
 	private HashMap<Integer,String> UMxMachines = new HashMap<Integer,String>();
-	private HashMap<String,ArrayList<Integer>> keyUMx = new HashMap<String,ArrayList<Integer>>();
+	//private HashMap<String,ArrayList<Integer>> keyUMx = new HashMap<String,ArrayList<Integer>>();
+	private static Dico keyUMx = new Dico();
 	private HashMap<String,String> RMxMachines = new HashMap<String,String>();
-	private HashMap<String,ArrayList<Integer>> mapRedOutputs = new HashMap<String,ArrayList<Integer>>();
+	private static Dico mapRedOutputs = new Dico();
 	
 	
 	public Master()
@@ -802,7 +803,7 @@ public class Master {
 	
 	
 	
-	private void listenToWorkers(BufferedReader br, HashMap<String,ArrayList<Integer>> hash) throws IOException
+	private void listenToWorkers(BufferedReader br, Dico hash) throws IOException
 	{
 		/*
 		 * listen to the workers to get their keys
@@ -819,7 +820,7 @@ public class Master {
 			
 			System.out.println("master listen : "+task+" "+key);
 				
-			addToList(hash,key,task);
+			hash.addToList(key,task);
 
         }
 	
@@ -829,7 +830,7 @@ public class Master {
 	
 	
 	
-	private void listenToWorkers2(BufferedReader[] br, HashMap<String,ArrayList<Integer>> hash) throws IOException
+	private void listenToWorkers2(BufferedReader[] br, Dico hash) throws IOException
 	{
 		/*
 		 * listen to the workers to get their keys
@@ -849,7 +850,7 @@ public class Master {
 				
 				System.out.println("master listen : "+task+" "+key);
 					
-				addToList(hash,key,task);
+				hash.addToList(key,task);
 
 	        }
 		}

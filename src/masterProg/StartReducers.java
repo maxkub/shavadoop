@@ -14,9 +14,9 @@ public class StartReducers implements Runnable
 	private String key;
 	private String workerIP;
 	private String tempfiles;
-	private HashMap<String,ArrayList<Integer>> mapRedOutputs;
+	private Dico mapRedOutputs;
 	
-	public StartReducers(String key, String workerIP, String tempfiles, HashMap<String,ArrayList<Integer>> mapRedOutputs)
+	public StartReducers(String key, String workerIP, String tempfiles, Dico mapRedOutputs)
 	{
 		this.mapRedOutputs = mapRedOutputs;
 		this.key      = key;
@@ -36,7 +36,14 @@ public class StartReducers implements Runnable
 		{
 			p = pb.start();
 			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			listenToWorkers(br, mapRedOutputs);
+			
+			synchronized(mapRedOutputs)
+			{
+				listenToWorkers(br, mapRedOutputs);
+			}
+			
+			
+			
 		} 
 		catch (IOException e) 
 		{
@@ -49,7 +56,7 @@ public class StartReducers implements Runnable
 	
 	
 	
-	private void listenToWorkers(BufferedReader br, HashMap<String,ArrayList<Integer>> hash) throws IOException
+	private void listenToWorkers(BufferedReader br, Dico hash) throws IOException
 	{
 		/*
 		 * listen to the workers to get their keys
@@ -66,28 +73,11 @@ public class StartReducers implements Runnable
 			
 			System.out.println("master listen : "+task+" "+key);
 				
-			addToList(hash,key,task);
+			hash.addToList(key,task);
 
         }
 	
 	}
-	
-	
-	public void addToList( HashMap<String,ArrayList<Integer>> Hash, String mapKey, Integer myItem) 
-	{
-		
-	    ArrayList<Integer> itemsList = Hash.get(mapKey);
-
-	    // if list does not exist create it
-	    if(itemsList == null) itemsList = new ArrayList<Integer>();
-	     
-	    itemsList.add(myItem);
-	    
-	    Hash.put(mapKey, itemsList);
-	    
-	}
-	
-	
 	
 
 

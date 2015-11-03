@@ -12,10 +12,10 @@ public class StartMappers implements Runnable
 	
 	private String workerIP;
 	private String filePath;
-	private HashMap<String,ArrayList<Integer>> keyUMx;
+	private Dico keyUMx;
 	private HashMap<String,ArrayList<Integer>> dict;
 	
-	public StartMappers(String workerIP, String filePath, HashMap<String,ArrayList<Integer>> keyUMx)
+	public StartMappers(String workerIP, String filePath, Dico keyUMx)
 	{
 		this.filePath = filePath;
 		this.workerIP = workerIP;
@@ -34,25 +34,16 @@ public class StartMappers implements Runnable
 		{
 			Process p = pb.start();
 			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			//listenToWorkers(br, keyUMx);
 			
-			
-			synchronized(Dico.get_dict()) 
+			synchronized(keyUMx)
 			{
-
-	            Dico dict = Dico.get_dict();
-	            listenToWorkers(br, dict);
-
-	        }	
+				listenToWorkers(br, keyUMx);
+			}
 			
-			
+		    
+					
 		} 
 		catch (IOException e) 
-		{
-
-			e.printStackTrace();
-		} 
-		catch (InterruptedException e) 
 		{
 
 			e.printStackTrace();
@@ -82,18 +73,12 @@ public class StartMappers implements Runnable
         	String key = itr.nextToken();
 			int task = Integer.parseInt(itr.nextToken());
 			
-			
 			System.out.println("master listen : "+task+" "+key);
 				
 			hash.addToList(key,task);
-
         }
 	
 	}
-	
-	
-	
-	
 	
 
 }

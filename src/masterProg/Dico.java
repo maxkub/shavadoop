@@ -2,29 +2,49 @@ package masterProg;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
 public class Dico {
 	
 	
-	private static HashMap<String,ArrayList<Integer>> dict = new HashMap<String,ArrayList<Integer>>(); 
+	private HashMap<String,ArrayList<Integer>> dict; 
     private static final java.util.concurrent.locks.Lock lock = new java.util.concurrent.locks.ReentrantLock();
 
-    private Dico() { }
+    public Dico() 
+    { 
+    	dict = new HashMap<String,ArrayList<Integer>>(); 
+    }
 
-    public static HashMap<String,ArrayList<Integer>> get_dict() 
+    public HashMap<String,ArrayList<Integer>> get_dict() 
     {
     	return dict;
     }
     
 
-    public static Lock getLock() 
+    public Lock getLock() 
     {
     	return lock;
     }
+    
+    
+    public Set<String> keySet()
+    {
+    	return this.dict.keySet();
+    }
+    
+    public ArrayList<Integer> get(String key)
+    {
+    	return this.dict.get(key);
+    }
+    
+    public Integer size()
+    {
+    	return this.dict.size();
+    }
 
     
-    public void addToList(String mapKey, Integer myItem) 
+    public synchronized void addToList(String mapKey, Integer myItem) 
 	{
 		
 	    ArrayList<Integer> itemsList = this.dict.get(mapKey);
