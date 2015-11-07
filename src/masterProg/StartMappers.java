@@ -7,19 +7,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
-public class StartMappers implements Runnable
+public class StartMappers extends StartWorkers implements Runnable
 {
 	
 	private String workerIP;
 	private String filePath;
-	private Dico keyUMx;
-	private HashMap<String,ArrayList<Integer>> dict;
+	//private HashMap<String,Integer> result;
 	
-	public StartMappers(String workerIP, String filePath, Dico keyUMx)
+	public StartMappers(String workerIP, String filePath)
 	{
 		this.filePath = filePath;
 		this.workerIP = workerIP;
-		this.keyUMx   = keyUMx;
 	}
 	
 	
@@ -27,19 +25,19 @@ public class StartMappers implements Runnable
 	public void run()
 	{
 		
+		//ProcessBuilder pb = new ProcessBuilder("ssh", workerIP, 
+		//		"java -jar ~/shavadoopMapper.jar "+filePath);//.inheritIO();
+		
 		ProcessBuilder pb = new ProcessBuilder("ssh", workerIP, 
-				"java -jar ~/shavadoopMapper.jar "+filePath);//.inheritIO();
+				"java -jar ~/shavadoopWorker.jar map "+filePath);//.inheritIO();
 				
 		try 
 		{
 			Process p = pb.start();
 			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			
-			synchronized(keyUMx)
-			{
-				listenToWorkers(br, keyUMx);
-			}
-			
+			result = listenToWorkers(br);
+			//System.out.println("startmappers result "+result);
 		    
 					
 		} 
@@ -52,18 +50,19 @@ public class StartMappers implements Runnable
 		
 	}
 	
-	public HashMap<String,ArrayList<Integer>> get_dict()
+	/*
+	
+	public HashMap<String,Integer> getValue()
 	{
-		return dict;
+		return result;
 	}
 	
 	
 	
-	private void listenToWorkers(BufferedReader br, Dico hash) throws IOException
+	private HashMap<String,Integer> listenToWorkers(BufferedReader br) throws IOException
 	{
-		/*
-		 * listen to the workers to get their keys
-		 */
+		
+		HashMap<String,Integer> hash = new HashMap<String,Integer>();
 		
 		String s;
         while ((s = br.readLine()) != null)
@@ -73,12 +72,13 @@ public class StartMappers implements Runnable
         	String key = itr.nextToken();
 			int task = Integer.parseInt(itr.nextToken());
 			
-			System.out.println("master listen : "+task+" "+key);
-				
-			hash.addToList(key,task);
+			hash.put(key, task);
         }
+        
+        return hash;
 	
 	}
+    */
 	
 
 }

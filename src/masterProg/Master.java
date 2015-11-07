@@ -414,15 +414,17 @@ public class Master {
 		 */
 		
 		Thread[] mappers = new Thread[taskNum];
+		StartMappers[] sm = new StartMappers[taskNum];
 		
 		int machine = 0;
 		
 		for( int i=0;i<taskNum;i++)
 		{
 			
-			mappers[i] = new Thread(new StartMappers(workerIds.get(machine), filePath+" "+ i, keyUMx));
+			sm[i] = new StartMappers(workerIds.get(machine), filePath+" "+ i);
+			mappers[i] = new Thread(sm[i]);
 			mappers[i].start();
-		
+			
 			UMxMachines.put(i, workerIds.get(machine));	
 			
 			machine++;
@@ -431,11 +433,24 @@ public class Master {
 	
 		}
 		
+		System.out.println("All Threads started");
 			
 		for(Thread t : mappers)
 		{
 			t.join();
 		}
+		
+		for(StartMappers s : sm)
+		{
+			HashMap<String,Integer> result  = new HashMap<String,Integer>();
+			result = s.getValue();
+			
+			for(String key : result.keySet())
+			{
+				keyUMx.addToList(key, result.get(key));
+			}
+		}
+		
 		
 	}
 	
@@ -598,9 +613,6 @@ public class Master {
 
 	
 	
-	
-	
-	
 	public void startReducers_withThreads() throws IOException, InterruptedException
 	{
 		/*
@@ -608,7 +620,9 @@ public class Master {
 		 */
 	
 		
-		Thread[] reducers = new Thread[keyUMx.size()];
+		Thread[] reducers = new Thread[keyUMx.get_size()];
+		StartReducers[] sr = new StartReducers[keyUMx.get_size()];
+		
 		
 		int machine = 0;
 		int worker = 0;
@@ -621,10 +635,10 @@ public class Master {
 				tempfilesIDs += " "+i;
 			}
 			
-			//System.out.println(tempfilesIDs);
+			//System.out.println("reducer "+keyUMx.get_size()+" "+worker);
 			
-			reducers[worker] = new Thread( new StartReducers(key, workerIds.get(machine), tempfilesIDs, mapRedOutputs));
-
+			sr[worker] = new StartReducers(key, workerIds.get(machine), tempfilesIDs);
+			reducers[worker] = new Thread(sr[worker]);
 			reducers[worker].start();
 			
 			RMxMachines.put(key, workerIds.get(machine));		
@@ -640,6 +654,17 @@ public class Master {
 		for(Thread t : reducers)
 		{
 			t.join();
+		}
+		
+		for(StartReducers s : sr)
+		{
+			HashMap<String,Integer> result  = new HashMap<String,Integer>();
+			result = s.getValue();
+			
+			for(String k : result.keySet())
+			{
+				mapRedOutputs.addToList(k, result.get(k));
+			}
 		}
 		
 	}
@@ -864,7 +889,7 @@ public class Master {
 	
 	public void writeMapRedOutputs(String filepath) throws FileNotFoundException, UnsupportedEncodingException
 	{
-		PrintWriter writer = new PrintWriter(filepath+"-mapredResults.txt", "UTF-8");
+		PrintWriter writer = new PrintWriter("/cal/homes/mkubryk/mapredResults.txt", "UTF-8");
 		
 		for(String k : mapRedOutputs.keySet())
 		{
@@ -881,13 +906,13 @@ public class Master {
 		System.out.println(UMxMachines);
 		
 		System.out.println("keyUMx");
-		System.out.println(keyUMx);
+		System.out.println(keyUMx.get_dict());
 		
 		System.out.println("RMxMachines");
 		System.out.println(RMxMachines);
 		
-		System.out.println("MapRedOutputs");
-		System.out.println(mapRedOutputs);
+		//System.out.println("MapRedOutputs");
+		//System.out.println(mapRedOutputs.get_dict());
 	}
 	
 	

@@ -1,4 +1,4 @@
-package masterProg;
+package workerProg;
 
 import java.util.ArrayList;
 import java.util.HashMap;

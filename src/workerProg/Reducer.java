@@ -1,4 +1,4 @@
-package reducerProg;
+package workerProg;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,7 +11,7 @@ public class Reducer {
 	
 	private String localKey;
 	private String[] filesToRead;
-	private HashMap<String,ArrayList<Integer>> mapOutputs = new HashMap<String,ArrayList<Integer>>();
+	private Dico mapOutputs = new Dico();
 	private HashMap<String,Integer> reduceOutputs = new HashMap<String,Integer>();
 	
 	
@@ -45,7 +45,7 @@ public class Reducer {
 	            	while(itr.hasMoreTokens())
 					{	
 						int value = Integer.parseInt(itr.nextToken());
-						addToList(mapOutputs,key,value);
+						mapOutputs.addToList(key,value);
 					}
 	            }
 				
@@ -72,7 +72,7 @@ public class Reducer {
 	}
 	
 	
-	
+	/*
 	public void addToList( HashMap<String,ArrayList<Integer>> Hash, String mapKey, Integer myItem) 
 	{
 		
@@ -86,5 +86,6 @@ public class Reducer {
 	    Hash.put(mapKey, itemsList);
 	    
 	}
+	*/
 
 }

@@ -1,4 +1,4 @@
-package mapperProg;
+package workerProg;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,7 +16,7 @@ public class Mapper {
 	private Integer task_id;
 	private String filePath;
 	
-	private HashMap<String,ArrayList<Integer>> UM = new HashMap<String,ArrayList<Integer>>();
+	private Dico UM = new Dico();
 	
 	
 	public Mapper(String filePath, String id)
@@ -48,15 +48,25 @@ public class Mapper {
 				while(itr.hasMoreTokens())
 				{	
 					String key = itr.nextToken();
-					addToList(UM,key,1);
+					UM.addToList(key,1);
+					
+					System.out.println(key+" "+task_id);
+					
+					/*
+					if( !(UM.keySet().contains(key)))
+					{
+						System.out.println(key+" "+task_id);
+					}
+					*/
+					
 				}
 				
-				this.writeUM();
+				 writeUM();
 	        }
 	        
 	        sc.close();
 	        	        
-	        sendKeys();
+	        //sendKeys();
 	        
 	    } catch (FileNotFoundException e) {
 	        e.printStackTrace();
@@ -117,7 +127,7 @@ public class Mapper {
 	}
 	
 	
-	
+	/*
 	public void addToList( HashMap<String,ArrayList<Integer>> Hash, String mapKey, Integer myItem) 
 	{
 		
@@ -131,6 +141,6 @@ public class Mapper {
 	    Hash.put(mapKey, itemsList);
 	    
 	}
-	
+	*/
 
 }
